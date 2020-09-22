@@ -1,6 +1,6 @@
 import React from 'react';
 import MapViewDirections from 'react-native-maps-directions'
-// import { Container } from './styles';
+import { GOOGLE_API_KEY } from 'react-native-dotenv'
 
 interface destinationProps {
     destination: { latitude: number, longitude: number, title: string },
@@ -13,7 +13,7 @@ const Directions: React.FC<destinationProps> = ({ destination, origin, onReady }
         destination={destination}
         origin={origin}
         onReady={onReady}
-        apikey="AIzaSyDo4RdcuiRqljtMG2zVnMe3yUzln6zoFmU"
+        apikey={GOOGLE_API_KEY}
         strokeWidth={3}
         strokeColor="#222"
     />

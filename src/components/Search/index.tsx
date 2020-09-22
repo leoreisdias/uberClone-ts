@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
+import { GOOGLE_API_KEY } from 'react-native-dotenv'
 
 interface searchProps {
     onLocationSelected: any
@@ -13,7 +14,7 @@ const Search: React.FC<searchProps> = ({ onLocationSelected }) => {
         placeholderTextColor="#333"
         onPress={onLocationSelected}
         query={{
-            key: 'AIzaSyDo4RdcuiRqljtMG2zVnMe3yUzln6zoFmU',
+            key: GOOGLE_API_KEY,
             language: 'pt'
         }}
         textInputProps={{
