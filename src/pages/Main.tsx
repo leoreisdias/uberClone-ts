@@ -1,17 +1,22 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { StyleSheet, StatusBar, View } from 'react-native'
+import { StyleSheet, StatusBar, View, Image } from 'react-native'
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps'
+import axios from 'axios'
 import mapStyle from '../constants/mapStyle.json';
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location'
 import Search from '../components/Search'
 import Directions from '../components/Directions'
 
-import { LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from './styles'
+import { GOOGLE_API_KEY } from 'react-native-dotenv'
+
+import { LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall, Back } from './styles'
 
 const markerImage = require('../../assets/marker.png')
+const backImage = require('../../assets/back.png')
 
 
 import { getPixelSize } from '../utils'
+import Details from '../components/Details';
 
 function Main() {
     const [currentRegion, setCurrentRegion] = useState({
@@ -22,6 +27,8 @@ function Main() {
     });
     const [loadStartRegionFlag, setLoadStartRegionFlag] = useState(false)
     const [destination, setDestination] = useState<any>(null)
+    const [duration, setDuration] = useState<any>()
+    const [originAddress, setOriginAddress] = useState<any>("Muzambinho");
     const [map, setMap] = useState<any>()
 
     useEffect(() => {
@@ -32,7 +39,8 @@ function Main() {
                 const { coords } = await getCurrentPositionAsync();
 
                 const { latitude, longitude } = coords
-
+                const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
+                setOriginAddress(response.data.results[0].address_components[1].short_name)
                 setCurrentRegion({
                     latitude,
                     longitude,
@@ -60,6 +68,10 @@ function Main() {
         })
     }
 
+    function handleBack() {
+        setDestination(null)
+    }
+
     return (
         <View style={styles.map}>
             <StatusBar
@@ -80,12 +92,13 @@ function Main() {
                             origin={currentRegion}
                             destination={destination}
                             onReady={(result: any) => {
+                                setDuration(Math.floor(result.duration))
                                 map.fitToCoordinates(result.coordinates, {
                                     edgePadding: {
                                         right: getPixelSize(50),
                                         left: getPixelSize(50),
                                         top: getPixelSize(50),
-                                        bottom: getPixelSize(50),
+                                        bottom: getPixelSize(350),
                                     }
                                 })
                             }}
@@ -99,16 +112,24 @@ function Main() {
                         <Marker coordinate={currentRegion} anchor={{ x: 0, y: 0 }}>
                             <LocationBox>
                                 <LocationTimeBox>
-                                    <LocationTimeText>31</LocationTimeText>
+                                    <LocationTimeText>{duration}</LocationTimeText>
                                     <LocationTimeTextSmall>Min</LocationTimeTextSmall>
                                 </LocationTimeBox>
-                                <LocationText>Muzambinho</LocationText>
+                                <LocationText>{originAddress}</LocationText>
                             </LocationBox>
                         </Marker>
                     </Fragment>
                 )}
             </MapView>
-            <Search onLocationSelected={handleLocationSelected} />
+            {destination ?
+                <Fragment>
+                    <Back onPress={handleBack}>
+                        <Image source={backImage} />
+                    </Back>
+                    <Details />
+                </Fragment>
+                : <Search onLocationSelected={handleLocationSelected} />}
+
         </View>
     )
 }
