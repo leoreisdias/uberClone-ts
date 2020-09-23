@@ -15,7 +15,7 @@ const Directions: React.FC<destinationProps> = ({ destination, origin, onReady }
         onReady={onReady}
         apikey={GOOGLE_API_KEY}
         strokeWidth={3}
-        strokeColor="#222"
+        strokeColor="yellow"
     />
 )
 
